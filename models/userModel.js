@@ -21,7 +21,6 @@ function createUser(user) {
     password: bcrypt.hashSync(user.password, 10)
   }
   users.push(newUser);
-  console.log(users);
   return newUser;
 }
 
