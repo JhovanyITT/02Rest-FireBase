@@ -21,7 +21,7 @@ async function login(req, res, newUser = null) {
         JWT_SECRET,
         { expiresIn: JWT_EXPIRES_IN }
     );
-    return newUser != null ?
+    return newUser == null ?
         res.status(200).json({ "code": 200, "message": "Inicio de sesión exitoso", "token": token }) :
         res.status(201).json({ "code": 201, "message": "Usuario creado e iniciado sesión", "new-user": newUser, "token": token });
 }
