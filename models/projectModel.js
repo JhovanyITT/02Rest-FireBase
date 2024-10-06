@@ -1,31 +1,30 @@
-const { v4: uuidv4 } = require('uuid')
+const { v4: uuidv4 } = require('uuid');
+const { admin } = require('../connection/firebase.connection');
+const db = admin.firestore();
 
-let projects = [
-    {
-        id: uuidv4(),
-        name: "Proyecto A",
-        description: "Este es el proyecto A",
-        startDate: "2024-01-01",
-        endDate: "2024-06-01",
-        status: "pendiente",
-        budget: 10000
-    },
-    {
-        id: uuidv4(),
-        name: "Proyecto B",
-        description: "Este es el proyecto B",
-        startDate: "2024-03-01",
-        endDate: "2024-09-01",
-        status: "en progreso",
-        budget: 25000
+async function getAllProjects() {
+    try {
+        const query = db.collection('projects');
+        const querySnapshot = await query.get();
+        const docs = querySnapshot.docs;
+
+        const response = docs.map((doc) => ({
+            id: doc.id,
+            name: doc.data().name,
+            description: doc.data().description,
+            startDate: doc.data().startDate,
+            endDate: doc.data().endDate,
+            status: doc.data().status,
+            budget: doc.data().budget
+        }));
+        return response;
+    } catch (error) {
+        console.log(error);
+        return null;
     }
-];
-
-function getAllProjects() {
-    return projects;
 }
 
-function createProject(data) {
+async function createProject(data) {
     const newProject = {
         id: uuidv4(),
         name: data.name,
@@ -35,8 +34,17 @@ function createProject(data) {
         status: data.status,
         budget: data.budget
     };
-    projects.push(newProject);
-    return newProject;
+
+    try {
+        await db
+            .collection('projects')
+            .doc(`/${newProject.id}/`)
+            .create(newProject);
+        return newProject;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
 }
 
 module.exports = {
