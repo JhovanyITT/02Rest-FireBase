@@ -3,9 +3,9 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 const JWT_SECRET = 'claveSecreta';
-const JWT_EXPIRES_IN = '180s';
+const JWT_EXPIRES_IN = '260s';
 
-async function login(req, res) {
+async function login(req, res, newUser = null) {
     const { username, password } = req.body;
     const user = userModel.getUserByUserName(username);
 
@@ -21,14 +21,15 @@ async function login(req, res) {
         JWT_SECRET,
         { expiresIn: JWT_EXPIRES_IN }
     );
-
-    return res.status(200).json({ "code": 200, "message": "Inicio de sesión exitoso", "token": token });
+    return newUser != null ?
+        res.status(200).json({ "code": 200, "message": "Inicio de sesión exitoso", "token": token }) :
+        res.status(201).json({ "code": 201, "message": "Usuario creado e iniciado sesión", "new-user": newUser, "token": token });
 }
 
 function createUser(req, res) {
     try {
         const newUser = userModel.createUser(req.body);
-        login(req,res);        
+        login(req, res, newUser);
     } catch (error) {
         res.status(400).json({ code: 400, message: "Error por parte del cliente" })
     }
